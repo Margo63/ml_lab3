@@ -6,6 +6,8 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score, mean_absolute_error,  mean_absolute_percentage_error
+from sklearn.preprocessing import PolynomialFeatures
+import tensorflow as tf
 def lin_regres():
     #task 1.1
     df = pd.read_csv("lab3_lin4.csv")
@@ -69,9 +71,99 @@ def lin_regres():
 
 
 
+def not_lin_regression():
+    #task 2.1
+    df = pd.read_csv("lab3_poly1.csv")
+    print(df.head())
+    plt.scatter(df["x"],df["y"], c="b", marker = ".")
+    plt.show()
+
+    #task 2.2
+    x_split = np.array(df["x"]).reshape(-1, 1)
+    y_split = np.array(df["y"]).reshape(-1, 1)
+
+    x_train, x_test,  y_train, y_test = (
+        train_test_split(x_split,  y_split, test_size=0.3))
+    plt.scatter(x_train, y_train, c="b", marker=".")
+    plt.scatter(x_test, y_test, c="r", marker=".")
+    plt.show()
+
+    #task 2.3
+    lin = LinearRegression()
+    lin.fit(x_train, y_train)
+    y_train_pred = lin.predict(x_train)
+    y_test_pred = lin.predict(x_test)
+    print(lin.coef_, lin.intercept_)
+
+    plt.plot(x_split, y_split, 'k.')
+    plt.plot(np.array(x_train), np.array(y_train_pred), 'r-')
+    plt.grid()
+    plt.title('degree = 1')
+    plt.show()
+
+    #task 2.4
+    # 2 -> 4 -> 8
+    x2 = PolynomialFeatures(8).fit_transform(x_train)
+    lin2 = LinearRegression(fit_intercept=False)
+    lin2.fit(x2, y_train)
+    print(lin2.coef_, lin2.intercept_)
+    c2 = lin2.coef_[0]
+    y2_pred = (c2[0] + c2[1] * x_train + c2[2] * x_train * x_train +c2[3] * x_train * x_train* x_train
+               + c2[4] * x_train * x_train * x_train * x_train + c2[5] * x_train * x_train * x_train * x_train* x_train
+               + c2[6] * x_train * x_train * x_train * x_train * x_train * x_train
+               + c2[7] * x_train * x_train * x_train * x_train * x_train * x_train * x_train
+               + c2[8] * x_train * x_train * x_train * x_train * x_train * x_train * x_train * x_train)
+
+    y2_pred_test = (c2[0] + c2[1] * x_test + c2[2] * x_test * x_test + c2[3] * x_test * x_test * x_test
+               + c2[4] * x_test * x_test * x_test * x_test + c2[5] * x_test * x_test * x_test * x_test * x_test
+               + c2[6] * x_test * x_test * x_test * x_test * x_test * x_test
+               + c2[7] * x_test * x_test * x_test * x_test * x_test * x_test * x_test
+               + c2[8] * x_test * x_test * x_test * x_test * x_test * x_test * x_test * x_test)
+
+
+
+    #task 2.5
+    #>1/2 значит все хорошо
+    print(r2_score(y_train, y2_pred))
+    print(r2_score(y_test, y2_pred_test))
+    print("mae y_train: "+str(mean_absolute_error(y_train, y2_pred)))
+    print("mae y_test: "+str(mean_absolute_error(y_test, y2_pred_test)))
+    print("mape y_train: "+str(mean_absolute_percentage_error(y_train, y2_pred) * 100))
+    print("mape y_test: "+str(mean_absolute_percentage_error(y_test, y2_pred_test) * 100))
+
+    #task 2.6
+    plt.plot(x_train, y_train, 'k.')
+    plt.plot(x_train, y2_pred, 'r.')
+    plt.plot(x_test, y2_pred_test, 'b.')
+    plt.grid()
+    plt.title('degree = 8')
+    plt.show()
+
+
+
+
+def model_regression():
+    #task 3.1
+    df = pd.read_csv("Student_Performance.csv")
+    print(df.head().to_string())
+
+    #task 3.2
+    df['Extracurricular Activities'] = df['Extracurricular Activities'].replace(["Yes"], 1)
+    df['Extracurricular Activities'] = df['Extracurricular Activities'].replace(["No"], 0)
+    print(df.head().to_string())
+
+    drop_df = df.drop_duplicates()
+    print(drop_df.describe().to_string())
+
+    df_not_null = drop_df.dropna()
+    print(df_not_null.describe().to_string())
+
+
+
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    lin_regres()
+    #lin_regres()
+    not_lin_regression()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
