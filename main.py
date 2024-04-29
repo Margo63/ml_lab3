@@ -102,23 +102,25 @@ def not_lin_regression():
     plt.show()
 
     #task 2.4
-    # 2 -> 4 -> 8
-    x2 = PolynomialFeatures(8).fit_transform(x_train)
+    # 2 -> 4 -> 6
+    x2 = PolynomialFeatures(5).fit_transform(x_train)
     lin2 = LinearRegression(fit_intercept=False)
     lin2.fit(x2, y_train)
     print(lin2.coef_, lin2.intercept_)
     c2 = lin2.coef_[0]
     y2_pred = (c2[0] + c2[1] * x_train + c2[2] * x_train * x_train +c2[3] * x_train * x_train* x_train
                + c2[4] * x_train * x_train * x_train * x_train + c2[5] * x_train * x_train * x_train * x_train* x_train
-               + c2[6] * x_train * x_train * x_train * x_train * x_train * x_train
-               + c2[7] * x_train * x_train * x_train * x_train * x_train * x_train * x_train
-               + c2[8] * x_train * x_train * x_train * x_train * x_train * x_train * x_train * x_train)
+               #+ c2[6] * x_train * x_train * x_train * x_train * x_train * x_train
+               #+ c2[7] * x_train * x_train * x_train * x_train * x_train * x_train * x_train
+               #+ c2[8] * x_train * x_train * x_train * x_train * x_train * x_train * x_train * x_train
+               )
 
     y2_pred_test = (c2[0] + c2[1] * x_test + c2[2] * x_test * x_test + c2[3] * x_test * x_test * x_test
                + c2[4] * x_test * x_test * x_test * x_test + c2[5] * x_test * x_test * x_test * x_test * x_test
-               + c2[6] * x_test * x_test * x_test * x_test * x_test * x_test
-               + c2[7] * x_test * x_test * x_test * x_test * x_test * x_test * x_test
-               + c2[8] * x_test * x_test * x_test * x_test * x_test * x_test * x_test * x_test)
+               #+ c2[6] * x_test * x_test * x_test * x_test * x_test * x_test
+               #+ c2[7] * x_test * x_test * x_test * x_test * x_test * x_test * x_test
+               #+ c2[8] * x_test * x_test * x_test * x_test * x_test * x_test * x_test * x_test
+                    )
 
 
 
@@ -136,8 +138,56 @@ def not_lin_regression():
     plt.plot(x_train, y2_pred, 'r.')
     plt.plot(x_test, y2_pred_test, 'b.')
     plt.grid()
-    plt.title('degree = 8')
+    plt.title('degree = 5')
     plt.show()
+
+    # task 2.7
+    x_tf = tf.constant(np.array(x_train), dtype=tf.float32)
+    y_tf = tf.constant(np.array(y_train), dtype=tf.float32)
+
+    # генерируем случайные параметры модели
+    w = [tf.Variable(np.random.randn()) for _ in range(6)]
+    print(*w)
+
+    # скорость обучения
+    alpha = tf.constant(0.001, dtype=tf.float32)
+    # количество итераций (эпох)
+    epoch_n = 9000
+
+    print(w[0]**6)
+    # цикл обучения
+    for epoch in range(epoch_n):
+        with tf.GradientTape() as tape:
+            # 0.5 * (X - 3) * (X - 2) + 4 * np.sin(X)
+            #y_pred = w[0] * x_tf * x_tf* x_tf * x_tf * x_tf * x_tf* x_tf * x_tf  + w[1] * x_tf* x_tf * x_tf * x_tf * x_tf* x_tf * x_tf  + w[2] * x_tf* x_tf * x_tf * x_tf* x_tf * x_tf + w[3] * x_tf * x_tf * x_tf* x_tf * x_tf + w[4] * x_tf * x_tf* x_tf * x_tf + w[5] * x_tf* x_tf * x_tf + w[6] * x_tf * x_tf + w[7] * x_tf + w[8]
+            y_pred = w[0]* x_tf **5 + w[1] * x_tf**4+ w[2] * x_tf**3 + w[3] *x_tf**2 + w[4]*x_tf**1 + w[5]
+
+            loss = tf.reduce_mean(tf.square(y_tf - y_pred))
+        grad = tape.gradient(loss, w)
+        for i in range(6):
+            w[i].assign_add(-(alpha * grad[i]))
+        if (epoch + 1) % 750 == 0:
+
+            print(f"E: {epoch + 1}, L: {loss.numpy()}")
+
+    y_line = w[0] * x_train ** 5 + w[1] * x_train ** 4 + w[2] * x_train ** 3 + w[3] * x_train ** 2 + w[4] * x_train ** 1 + w[5] * x_train ** 0 #+ w[6] * x_train ** 0# + w[7] * x_train + w[8]
+    y_line_test = w[0] * x_test ** 5 + w[1] * x_test ** 4 + w[2] * x_test ** 3 + w[3] * x_test ** 2 + w[
+        4] * x_test ** 1 + w[5] * x_test ** 0
+    plt.plot(x_train, y_train, 'k.')
+    plt.plot(x_train, y_line, 'r.')
+    plt.plot(x_test, y_line_test, 'b.')
+    plt.grid()
+    plt.title('еа')
+    plt.show()
+
+    print(r2_score(y_train, y_line))
+    print(r2_score(y_test, y_line_test))
+    print("mae y_train: " + str(mean_absolute_error(y_train, y_line)))
+    print("mae y_test: " + str(mean_absolute_error(y_test, y_line_test)))
+    print("mape y_train: " + str(mean_absolute_percentage_error(y_train, y_line) * 100))
+    print("mape y_test: " + str(mean_absolute_percentage_error(y_test, y_line_test) * 100))
+
+
 
 
 
