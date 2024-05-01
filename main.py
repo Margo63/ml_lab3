@@ -290,14 +290,13 @@ def not_lin_regression():
     # task 2.7
     x_tf = tf.constant(np.array(x_train), dtype=tf.float32)
     y_tf = tf.constant(np.array(y_train), dtype=tf.float32)
-    w = [tf.Variable(np.random.randn()) for _ in range(2)]
+    w = [tf.Variable(np.random.randn()) for _ in range(6)]
     print(*w)
     alpha = tf.constant(0.001, dtype=tf.float32)
     epoch_n = 9000
-    # цикл обучения
     for epoch in range(epoch_n):
         with tf.GradientTape() as tape:
-            y_pred = w[0]* x_tf **1 #+ w[1] * x_tf**4+ w[2] * x_tf**3 + w[3] *x_tf**2 + w[4]*x_tf**1 + w[5]
+            y_pred = w[0]* x_tf **5 + w[1] * x_tf**4+ w[2] * x_tf**3 + w[3] *x_tf**2 + w[4]*x_tf**1 + w[5]
 
             loss = tf.reduce_mean(tf.square(y_tf - y_pred))
         grad = tape.gradient(loss, w)
@@ -307,13 +306,14 @@ def not_lin_regression():
 
             print(f"E: {epoch + 1}, L: {loss.numpy()}")
 
-    y_line = w[0] * x_train ** 1 + w[1] * x_train ** 0# + w[2] * x_train ** 3 + w[3] * x_train ** 2 + w[4] * x_train ** 1 + w[5] * x_train ** 0
-    y_line_test = w[0] * x_test ** 1 + w[1] * x_test ** 0# + w[2] * x_test ** 3 + w[3] * x_test ** 2 + w[4] * x_test ** 1 + w[5] * x_test ** 0
+    y_line = w[0] * x_train ** 5 + w[1] * x_train ** 4 + w[2] * x_train ** 3 + w[3] * x_train ** 2 + w[4] * x_train ** 1 + w[5] * x_train ** 0
+    y_line_test = w[0] * x_test ** 5 + w[1] * x_test ** 4 + w[2] * x_test ** 3 + w[3] * x_test ** 2 + w[4] * x_test ** 1 + w[5] * x_test ** 0
     plt.plot(x_train, y_train, 'k.')
-    plt.plot(x_train, y_line, 'r.')
+    plt.plot(x_test, y_test, 'r.')
     plt.plot(x_test, y_line_test, 'b.')
     plt.grid()
     plt.title('tensor flow')
+    plt.legend(("train","test","test_predict"))
     plt.show()
 
     print(r2_score(y_train, y_line))
@@ -394,36 +394,42 @@ def model_regression():
 
     model = Ridge(1)
     model.fit(X_train, Y_train)
+    print(model.coef_)
     predict = model.predict(X_test)
     plt.scatter(X1_train, Y_train, c="b", marker=".")
     plt.scatter(X1_test, Y_test, c="r", marker=".")
     plt.scatter(X1_test, predict, c="k", marker="x")
     plt.xlabel("Hours Studied")
     plt.ylabel("Performance Index")
+    plt.legend(('train', 'test','predict'))
     plt.show()
     plt.scatter(X2_train, Y_train, c="b", marker=".")
     plt.scatter(X2_test, Y_test, c="r", marker=".")
     plt.scatter(X2_test, predict, c="k", marker="x")
     plt.xlabel("Previous Scores")
     plt.ylabel("Performance Index")
+    plt.legend(('train', 'test', 'predict'))
     plt.show()
     plt.scatter(X3_train, Y_train, c="b", marker=".")
     plt.scatter(X3_test, Y_test, c="r", marker=".")
     plt.scatter(X3_test, predict, c="k", marker="x")
     plt.xlabel("Extracurricular Activities")
     plt.ylabel("Performance Index")
+    plt.legend(('train', 'test', 'predict'))
     plt.show()
     plt.scatter(X4_train, Y_train, c="b", marker=".")
     plt.scatter(X4_test, Y_test, c="r", marker=".")
     plt.scatter(X4_test, predict, c="k", marker="x")
     plt.xlabel("Sleep Hours")
     plt.ylabel("Performance Index")
+    plt.legend(('train', 'test', 'predict'))
     plt.show()
     plt.scatter(X5_train, Y_train, c="b", marker=".")
     plt.scatter(X5_test, Y_test, c="r", marker=".")
     plt.scatter(X5_test, predict, c="k", marker="x")
     plt.xlabel("Sample Question Papers Practiced")
     plt.ylabel("Performance Index")
+    plt.legend(('train', 'test', 'predict'))
     plt.show()
 
 
@@ -436,5 +442,5 @@ def model_regression():
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     #lin_regres()
-    #not_lin_regression()
-    model_regression()
+    not_lin_regression()
+    #model_regression()
